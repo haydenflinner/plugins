@@ -7,7 +7,13 @@
 @interface FLTSensorsPlugin : NSObject<FlutterPlugin>
 @end
 
+@interface FLTLinearStreamHandler : NSObject<FlutterStreamHandler>
+@end
+
 @interface FLTAccelerometerStreamHandler : NSObject<FlutterStreamHandler>
+@end
+
+@interface FLTGravityStreamHandler : NSObject<FlutterStreamHandler>
 @end
 
 @interface FLTGyroscopeStreamHandler : NSObject<FlutterStreamHandler>

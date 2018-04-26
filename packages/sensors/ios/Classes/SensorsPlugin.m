@@ -15,6 +15,21 @@
                                 binaryMessenger:[registrar messenger]];
   [accelerometerChannel setStreamHandler:accelerometerStreamHandler];
 
+  FLTLinearStreamHandler* linearStreamHandler =
+      [[FLTLinearStreamHandler alloc] init];
+  FlutterEventChannel* linearChannel =
+      [FlutterEventChannel eventChannelWithName:@"plugins.flutter.io/linear"
+                                binaryMessenger:[registrar messenger]];
+  [linearChannel setStreamHandler:linearStreamHandler];
+
+  FLTGravityStreamHandler* gravityStreamHandler =
+      [[FLTGravityStreamHandler alloc] init];
+  FlutterEventChannel* gravityChannel =
+      [FlutterEventChannel eventChannelWithName:@"plugins.flutter.io/gravity"
+                                binaryMessenger:[registrar messenger]];
+  [gravityChannel setStreamHandler:gravityStreamHandler];
+
+
   FLTGyroscopeStreamHandler* gyroscopeStreamHandler = [[FLTGyroscopeStreamHandler alloc] init];
   FlutterEventChannel* gyroscopeChannel =
       [FlutterEventChannel eventChannelWithName:@"plugins.flutter.io/gyroscope"
@@ -59,6 +74,50 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 - (FlutterError*)onCancelWithArguments:(id)arguments {
   [_motionManager stopAccelerometerUpdates];
+  return nil;
+}
+
+@end
+
+@implementation FLTLinearStreamHandler
+
+- (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
+  _initMotionManager();
+  [_motionManager
+      startDeviceMotionUpdatesToQueue:[[NSOperationQueue alloc] init]
+                           withHandler:^(CMDeviceMotion* data, NSError* error) {
+                             CMAcceleration acceleration = data.userAcceleration;
+                             // Multiply by gravity, and just sign values to align with Android.
+                             sendTriplet(-acceleration.x * GRAVITY, -acceleration.y * GRAVITY,
+                                         -acceleration.z * GRAVITY, eventSink);
+                           }];
+  return nil;
+}
+
+- (FlutterError*)onCancelWithArguments:(id)arguments {
+  [_motionManager stopDeviceMotionUpdates];
+  return nil;
+}
+
+@end
+
+@implementation FLTGravityStreamHandler
+
+- (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
+  _initMotionManager();
+  [_motionManager
+      startDeviceMotionUpdatesToQueue:[[NSOperationQueue alloc] init]
+                           withHandler:^(CMDeviceMotion* data, NSError* error) {
+                             CMAcceleration acceleration = data.gravity;
+                             // Multiply by gravity, and just sign values to align with Android.
+                             sendTriplet(-acceleration.x * GRAVITY, -acceleration.y * GRAVITY,
+                                         -acceleration.z * GRAVITY, eventSink);
+                           }];
+  return nil;
+}
+
+- (FlutterError*)onCancelWithArguments:(id)arguments {
+  [_motionManager stopDeviceMotionUpdates];
   return nil;
 }
 

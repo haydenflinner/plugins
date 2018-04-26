@@ -40,6 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   static const double _snakeCellSize = 10.0;
 
   List<double> _accelerometerValues;
+  List<double> _linearAccelerometerValues;
+  List<double> _gravityValues;
   List<double> _gyroscopeValues;
   List<StreamSubscription<dynamic>> _streamSubscriptions =
       <StreamSubscription<dynamic>>[];
@@ -48,8 +50,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final List<String> accelerometer =
         _accelerometerValues?.map((double v) => v.toStringAsFixed(1))?.toList();
+    final List<String> gravity =
+        _gravityValues?.map((double v) => v.toStringAsFixed(1))?.toList();
     final List<String> gyroscope =
         _gyroscopeValues?.map((double v) => v.toStringAsFixed(1))?.toList();
+    final List<String> linearAccelerometer =
+        _linearAccelerometerValues?.map((double v) => v.toStringAsFixed(1))?.toList();
+
 
     return new Scaffold(
       appBar: new AppBar(
@@ -87,6 +94,24 @@ class _MyHomePageState extends State<MyHomePage> {
             child: new Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                new Text('Gravity: $gravity'),
+              ],
+            ),
+            padding: const EdgeInsets.all(16.0),
+          ),
+          new Padding(
+            child: new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                new Text('LinearAccelerometer: $linearAccelerometer'),
+              ],
+            ),
+            padding: const EdgeInsets.all(16.0),
+          ),
+          new Padding(
+            child: new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
                 new Text('Gyroscope: $gyroscope'),
               ],
             ),
@@ -114,10 +139,23 @@ class _MyHomePageState extends State<MyHomePage> {
         _accelerometerValues = <double>[event.x, event.y, event.z];
       });
     }));
+    _streamSubscriptions
+        .add(gravityEvents.listen((GravityEvent event) {
+      setState(() {
+        _gravityValues = <double>[event.x, event.y, event.z];
+      });
+    }));
     _streamSubscriptions.add(gyroscopeEvents.listen((GyroscopeEvent event) {
       setState(() {
         _gyroscopeValues = <double>[event.x, event.y, event.z];
       });
     }));
+    _streamSubscriptions
+        .add(linearAccelerometerEvents.listen((LinearAccelerometerEvent event) {
+      setState(() {
+        _linearAccelerometerValues = <double>[event.x, event.y, event.z];
+      });
+    }));
+
   }
 }
